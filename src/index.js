@@ -15,6 +15,7 @@ app.post(USER_BASE_URL, userController.createUser);
 app.get(USER_BASE_URL, userController.getUsers);
 app.get(`${USER_BASE_URL}/:id`, userController.getUser);
 app.patch(`${USER_BASE_URL}/:id`, userController.updateUser);
+app.patch(`${USER_BASE_URL}/:id`, userController.deleteUser);
 
 //? POST REQUEST
 app.post(TASK_BASE_URL, taskController.createTask);
@@ -22,6 +23,7 @@ app.get(TASK_BASE_URL, taskController.getTasks);
 
 app.get(`${TASK_BASE_URL}/:id`, taskController.getTask);
 app.patch(`${TASK_BASE_URL}/:id`, taskController.updateTask);
+app.delete(`${TASK_BASE_URL}/:id`, taskController.deleteTask);
 
 //
 

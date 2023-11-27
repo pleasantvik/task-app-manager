@@ -96,9 +96,31 @@ const updateTask = async (req, res) => {
   }
 };
 
+const deleteTask = async (req, res) => {
+  try {
+    const task = await Task.findByIdAndDelete(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({
+        message: "No user with the Id",
+      });
+    }
+
+    res.status(200).json({
+      status: "Task deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createTask,
   getTasks,
   getTask,
   updateTask,
+  deleteTask,
 };
