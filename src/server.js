@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
-const app = require("../index.js");
+const dotenv = require("dotenv");
+const app = require("./index");
 
-const DB = "mongodb://127.0.0.1:27017/task-app";
+dotenv.config({
+  path: "./config.env",
+});
+
+const DB = process.env.DB_LOCAL;
 mongoose
   .connect(DB, {
-    useNewUrlParser: true,
+    // useNewUrlParser: true,
     // useCreateIndex: true,
     // useFindAndModify: false,
     // useUnifiedTopology: true,
