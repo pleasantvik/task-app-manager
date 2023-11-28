@@ -1,4 +1,4 @@
-const User = require("../src/models/userModel");
+const User = require("../models/userModel");
 const getUsers = async (req, res) => {
   try {
     const user = await User.find();
@@ -59,7 +59,7 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const updatesKey = Object.keys(req.body);
-  const allowedUpdates = ["name", "age", "password"];
+  const allowedUpdates = ["name", "age", "password", "email"];
 
   const isValidOperation = updatesKey.every((update) =>
     allowedUpdates.includes(update)
@@ -73,16 +73,22 @@ const updateUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findById(req.params.id);
 
+    console.log(user);
     if (!user) {
       return res.status(404).json({
         message: "No user with the Id",
       });
     }
+    updatesKey.forEach((update) => (user[update] = req.body[update]));
+    await user.save();
+
+    //? Can't use  findByIdAndUpdate because it skips the pre middleware on schema
+    // const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
 
     res.status(200).json({
       status: "success",

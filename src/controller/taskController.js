@@ -1,4 +1,4 @@
-const Task = require("../src/models/taskModel");
+const Task = require("../models/taskModel");
 const createTask = async (req, res) => {
   try {
     const newTask = await Task.create(req.body);
@@ -71,16 +71,14 @@ const updateTask = async (req, res) => {
     });
   }
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
+    const task = await Task.findById(req.params.id);
     if (!task) {
       return res.status(404).json({
         message: "No user with the Id",
       });
     }
+
+    updates.forEach((update) => (task[update] = req.body[update]));
 
     res.status(200).json({
       status: "success",

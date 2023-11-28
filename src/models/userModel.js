@@ -1,4 +1,5 @@
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   name: {
@@ -37,6 +38,17 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+//*pre Middleware: for doing sth before an event, e.g before the user is save
+userSchema.pre("save", async function (next) {
+  const user = this;
+
+  if (!user.isModified("password")) return next();
+
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next();
+});
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

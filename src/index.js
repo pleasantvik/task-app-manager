@@ -1,30 +1,30 @@
 const express = require("express");
 
-const User = require("./models/userModel");
-const Task = require("./models/taskModel");
-const taskController = require("../controller/taskController");
-const userController = require("../controller/userController");
-const app = express();
-
-app.use(express.json());
+const userRoute = require("./routes/usersRoute");
+const taskRoute = require("./routes/tasksRoute");
 
 const USER_BASE_URL = "/api/v1/users";
 const TASK_BASE_URL = "/api/v1/tasks";
 
-app.post(USER_BASE_URL, userController.createUser);
-app.get(USER_BASE_URL, userController.getUsers);
-app.get(`${USER_BASE_URL}/:id`, userController.getUser);
-app.patch(`${USER_BASE_URL}/:id`, userController.updateUser);
-app.patch(`${USER_BASE_URL}/:id`, userController.deleteUser);
+const app = express();
+app.use(express.json());
 
-//? POST REQUEST
-app.post(TASK_BASE_URL, taskController.createTask);
-app.get(TASK_BASE_URL, taskController.getTasks);
+app.use(USER_BASE_URL, userRoute);
+app.use(TASK_BASE_URL, taskRoute);
 
-app.get(`${TASK_BASE_URL}/:id`, taskController.getTask);
-app.patch(`${TASK_BASE_URL}/:id`, taskController.updateTask);
-app.delete(`${TASK_BASE_URL}/:id`, taskController.deleteTask);
+const bcrypt = require("bcryptjs");
 
-//
+const myFunc = async () => {
+  const password = "red1234";
+  const hashedPassword = await bcrypt.hash(password, 8);
 
+  const isMatch = await bcrypt.compare(password, hashedPassword);
+
+  console.log({ isMatch });
+
+  console.log({ hashedPassword });
+  console.log({ password });
+};
+
+myFunc();
 module.exports = app;
