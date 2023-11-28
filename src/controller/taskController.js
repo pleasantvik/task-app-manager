@@ -1,7 +1,13 @@
 const Task = require("../models/taskModel");
 const createTask = async (req, res) => {
   try {
-    const newTask = await Task.create(req.body);
+    // const newTask = await Task.create(req.body);
+
+    const newTask = await Task.create({
+      ...req.body,
+      owner: req.user._id,
+    });
+
     res.status(201).json({
       status: "success",
       data: {
@@ -17,7 +23,8 @@ const createTask = async (req, res) => {
 };
 const getTasks = async (req, res) => {
   try {
-    const task = await Task.find();
+    const task = await Task.find({ owner: req.user._id });
+    // const task = await req.user.populate("tasks").execPopulate();
 
     res.status(200).json({
       status: "success",
@@ -35,7 +42,10 @@ const getTasks = async (req, res) => {
 
 const getTask = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).json({
@@ -71,7 +81,10 @@ const updateTask = async (req, res) => {
     });
   }
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
     if (!task) {
       return res.status(404).json({
         message: "No user with the Id",
@@ -96,7 +109,11 @@ const updateTask = async (req, res) => {
 
 const deleteTask = async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id);
+    // const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).json({

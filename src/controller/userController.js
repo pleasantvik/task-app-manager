@@ -87,9 +87,8 @@ const updateUser = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.user._id);
 
-    console.log(user);
     if (!user) {
       return res.status(404).json({
         message: "No user with the Id",
@@ -120,7 +119,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.user._id);
 
     if (!user) {
       return res.status(404).json({
@@ -128,8 +127,12 @@ const deleteUser = async (req, res) => {
       });
     }
 
+    // console.log(req.user);
+    // await req.user.remove();
+
     res.status(200).json({
       status: "user deleted successfully",
+      user: req.user,
     });
   } catch (error) {
     res.status(400).json({
@@ -160,6 +163,42 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  console.log(req.user.tokens);
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token;
+    });
+
+    await req.user.save();
+
+    res.status(200).json({
+      message: "Logout successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+      status: "failed",
+    });
+  }
+};
+const logoutAll = async (req, res) => {
+  console.log(req.user.tokens);
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+
+    res.status(200).json({
+      message: "Logout successful from all devices",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+      status: "failed",
+    });
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
@@ -168,4 +207,6 @@ module.exports = {
   login,
   deleteUser,
   getMe,
+  logout,
+  logoutAll,
 };

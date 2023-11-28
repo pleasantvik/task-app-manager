@@ -5,7 +5,14 @@ const authMiddleware = require("../controller/middleware/checkAuth");
 
 const router = express.Router();
 
-router.route("/me").get(authMiddleware, userController.getMe);
+router
+  .route("/me")
+  .get(authMiddleware, userController.getMe)
+  .delete(authMiddleware, userController.deleteUser)
+  .patch(authMiddleware, userController.updateUser);
+router.route("/login").post(userController.login);
+router.route("/logout").post(authMiddleware, userController.logout);
+router.route("/logoutAll").post(authMiddleware, userController.logoutAll);
 
 router
   .route("/")
@@ -18,7 +25,5 @@ router
   .delete(userController.deleteUser);
 
 // Logging in user route
-
-router.route("/login").post(userController.login);
 
 module.exports = router;
