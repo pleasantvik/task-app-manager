@@ -14,6 +14,7 @@ mongoose
     // useFindAndModify: false,
     // useUnifiedTopology: true,
   })
+
   .then((cons) => {
     console.log("Successfully connected to the server");
   });

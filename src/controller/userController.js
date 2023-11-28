@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+
 const getUsers = async (req, res) => {
   try {
     const user = await User.find();
@@ -15,6 +16,16 @@ const getUsers = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+const getMe = async (req, res) => {
+  // res.status(200).json({
+  //   data: {
+  //     user: req.user,
+  //   },
+  // });
+
+  res.send(req.user);
 };
 
 const getUser = async (req, res) => {
@@ -43,16 +54,19 @@ const getUser = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
+    const token = await newUser.generateAuthToken();
+
     res.status(201).json({
       status: "success",
       data: {
         users: newUser,
+        token,
       },
     });
   } catch (error) {
     res.status(400).json({
       status: "failed",
-      message: "Invalid Data",
+      message: error.message,
     });
   }
 };
@@ -125,10 +139,33 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findByCredentials(email, password);
+
+    const token = await user.generateAuthToken();
+
+    res.status(200).json({
+      data: {
+        user,
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getUsers,
   getUser,
   updateUser,
   createUser,
+  login,
   deleteUser,
+  getMe,
 };

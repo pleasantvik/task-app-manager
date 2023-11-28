@@ -1,6 +1,8 @@
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -20,6 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     lowercase: true,
+    unique: [true, "email already taken"],
     validate(value) {
       if (!validator.isEmail(value)) {
         throw new Error("Email is invalid");
@@ -36,19 +39,61 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
-//*pre Middleware: for doing sth before an event, e.g before the user is save
-userSchema.pre("save", async function (next) {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  if (!user.isModified("password")) return next();
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+    // expiresIn: ,
+  });
+
+  user.tokens = user.tokens.concat({ token });
+
+  await user.save();
+
+  return token;
+};
+
+//? This static method is available on all instance of user
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Unable to Login");
+  }
+
+  return user;
+};
+
+//*pre Middleware: for doing sth before an event, e.g hashing user password before the user is save
+userSchema.pre("save", async function (next) {
+  const user = this;
 
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();
 });
+
 const User = mongoose.model("User", userSchema);
+User.createIndexes({
+  email: 1,
+  unique: true,
+});
 
 module.exports = User;

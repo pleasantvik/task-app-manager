@@ -12,19 +12,27 @@ app.use(express.json());
 app.use(USER_BASE_URL, userRoute);
 app.use(TASK_BASE_URL, taskRoute);
 
-const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const myFunc = async () => {
-  const password = "red1234";
-  const hashedPassword = await bcrypt.hash(password, 8);
+  const token = jwt.sign(
+    {
+      _id: "abc123",
+    },
+    "rtyffffffffffxeeezwefdxxxtrxxtxffxrtrxrcvhlhhuyftyddesfddtgjhhdrdwwqsxvbknhgtydrsn",
+    {
+      expiresIn: "7 days",
+    }
+  );
+  console.log(token);
 
-  const isMatch = await bcrypt.compare(password, hashedPassword);
+  const data = jwt.verify(
+    token,
+    "rtyffffffffffxeeezwefdxxxtrxxtxffxrtrxrcvhlhhuyftyddesfddtgjhhdrdwwqsxvbknhgtydrsn"
+  );
 
-  console.log({ isMatch });
-
-  console.log({ hashedPassword });
-  console.log({ password });
+  console.log(data);
 };
 
-myFunc();
+// myFunc();
 module.exports = app;
